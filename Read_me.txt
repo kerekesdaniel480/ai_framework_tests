@@ -6,3 +6,5 @@ dependencies = [
     "TensorFlow",
     "pandas"
 ]
+
+Playing_Cards_data_set = drFarid/French-Playing-Cards
