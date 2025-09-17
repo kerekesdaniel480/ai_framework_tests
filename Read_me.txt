@@ -8,3 +8,5 @@ dependencies = [
 ]
 
 Playing_Cards_data_set = drFarid/French-Playing-Cards
+
+Dataset = Cat_VS_Dogs
