@@ -22,5 +22,5 @@ validation_generator = datagen.flow_from_directory(
 )
 
 
-print("TensorFlow version: ", tf.__version__, "\n")
-print("Python version: ", sys.version, "\n")
+#print("TensorFlow version: ", tf.__version__, "\n")
+#print("Python version: ", sys.version, "\n")
