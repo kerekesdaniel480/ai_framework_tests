@@ -63,6 +63,7 @@ plt.plot(epochs, val_acc, 'ro-', label='Validációs pontosság')
 plt.title('Modell pontosság')
 plt.xlabel('Epoch')
 plt.ylabel('Pontosság')
+plt.show()
 
 #print("TensorFlow version: ", tf.__version__, "\n")
 #print("Python version: ", sys.version, "\n")
