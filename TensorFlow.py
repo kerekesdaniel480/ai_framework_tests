@@ -1,5 +1,4 @@
 import tensorflow as tf
-import sys
 import matplotlib.pyplot as plt
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -64,6 +63,3 @@ plt.title('Modell pontosság')
 plt.xlabel('Epoch')
 plt.ylabel('Pontosság')
 plt.show()
-
-#print("TensorFlow version: ", tf.__version__, "\n")
-#print("Python version: ", sys.version, "\n")
