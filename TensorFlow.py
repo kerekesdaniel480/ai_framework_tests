@@ -3,7 +3,7 @@ import sys
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
 datagen = ImageDataGenerator(rescale=1./255)
 
@@ -22,7 +22,8 @@ validation_generator = datagen.flow_from_directory(
 )
 
 model = Sequential([
-    Conv2D(32, (3, 3), activation='relu', input_shape=(300, 300, 3)),
+    Input(shape=(300, 300, 3)),
+    Conv2D(32, (3, 3), activation='relu'),
     MaxPooling2D(2, 2),
     
     Conv2D(64, (3, 3), activation='relu'),
