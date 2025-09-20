@@ -1,5 +1,6 @@
 import tensorflow as tf
 import sys
+import matplotlib.pyplot as plt
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
@@ -41,6 +42,27 @@ model = Sequential([
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
+
+
+history = model.fit(
+    train_generator,
+    epochs=10,
+    validation_data=validation_generator
+)
+
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+epochs = range(1, len(acc) + 1)
+
+# Pontosság (accuracy) ábrázolása
+plt.figure(figsize=(10, 5))
+plt.plot(epochs, acc, 'bo-', label='Tanító pontosság')
+plt.plot(epochs, val_acc, 'ro-', label='Validációs pontosság')
+plt.title('Modell pontosság')
+plt.xlabel('Epoch')
+plt.ylabel('Pontosság')
 
 #print("TensorFlow version: ", tf.__version__, "\n")
 #print("Python version: ", sys.version, "\n")
