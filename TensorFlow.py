@@ -8,14 +8,14 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropou
 datagen = ImageDataGenerator(rescale=1./255)
 
 train_generator = datagen.flow_from_directory(
-    'Dataset_cats/Cat vs Dog/train',
+    '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/train',
     target_size=(300, 300),
     batch_size=32,
     class_mode='binary'
 )
 
 validation_generator = datagen.flow_from_directory(
-    'Dataset_cats/Cat vs Dog/validation',
+    '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/validation',
     target_size=(300, 300),
     batch_size=32,
     class_mode='binary'
