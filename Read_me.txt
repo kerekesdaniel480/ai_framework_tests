@@ -4,7 +4,8 @@ version = "0.1.0"
 dependencies = [
     "Torch",
     "TensorFlow",
-    "pandas"
+    "pandas",
+    "matplotlib"
 ]
 
 Dataset = Cat_VS_Dogs
