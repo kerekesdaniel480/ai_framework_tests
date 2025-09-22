@@ -4,17 +4,37 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import ReduceLROnPlateau
 
-datagen = ImageDataGenerator(rescale=1./255)
+lr_scheduler = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=2,
+    min_lr=1e-6
+)
 
-train_generator = datagen.flow_from_directory(
+
+train_datagen = ImageDataGenerator(rescale=1./255,
+                             rotation_range=20,
+                             width_shift_range=0.2,
+                             height_shift_range=0.2,
+                             shear_range=0.2,
+                             zoom_range=0.2,
+                             horizontal_flip=True,
+                             fill_mode='nearest')
+val_datagen = ImageDataGenerator(rescale=1./255)
+optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.0005)
+early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+
+train_generator = train_datagen.flow_from_directory(
     '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/train',
     target_size=(300, 300),
     batch_size=32,
     class_mode='binary'
 )
 
-validation_generator = datagen.flow_from_directory(
+validation_generator = val_datagen.flow_from_directory(
     '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/validation',
     target_size=(300, 300),
     batch_size=32,
@@ -34,19 +54,20 @@ model = Sequential([
     
     Flatten(),
     Dense(512, activation='relu'),
-    Dropout(0.5),
+    Dropout(0.3),
     Dense(1, activation='sigmoid')
 ])
 
-model.compile(optimizer='adam',
+model.compile(optimizer=optimizer,
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
 
 history = model.fit(
     train_generator,
-    epochs=10,
-    validation_data=validation_generator
+    epochs=50,
+    validation_data=validation_generator,
+    callbacks=[early_stop, lr_scheduler]
 )
 
 acc = history.history['accuracy']

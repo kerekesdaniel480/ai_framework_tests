@@ -5,7 +5,8 @@ dependencies = [
     "Torch",
     "TensorFlow",
     "pandas",
-    "matplotlib"
+    "matplotlib",
+    "scipy"
 ]
 
 Dataset = Cat_VS_Dogs
