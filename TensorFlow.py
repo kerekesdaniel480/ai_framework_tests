@@ -55,7 +55,7 @@ model = Sequential([
     
     Flatten(),
     Dense(512, activation='relu'),
-    Dropout(0.3),
+    Dropout(0.5),
     Dense(1, activation='sigmoid')
 ])
 
