@@ -23,6 +23,7 @@ train_datagen = ImageDataGenerator(rescale=1./255,
                              zoom_range=0.2,
                              horizontal_flip=True,
                              fill_mode='nearest')
+
 val_datagen = ImageDataGenerator(rescale=1./255)
 optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.0005)
 early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
