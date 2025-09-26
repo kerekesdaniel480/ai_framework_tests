@@ -89,5 +89,5 @@ plt.show()
 max_train_acc = max(history.history['accuracy'])
 max_val_acc = max(history.history['val_accuracy'])
 
-print(f"Maximális tanító pontosság: {max_train_acc * 100:.2f}%")
-print(f"Maximális validációs pontosság: {max_val_acc * 100:.2f}%")
+#print(f"Maximális tanító pontosság: {max_train_acc * 100:.2f}%")
+#print(f"Maximális validációs pontosság: {max_val_acc * 100:.2f}%")
