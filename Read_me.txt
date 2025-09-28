@@ -1,6 +1,6 @@
 [project]
 name = "AI_FRAMEWORK_TESTS"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
     "Torch",
     "TensorFlow",
@@ -10,3 +10,4 @@ dependencies = [
 ]
 
 Dataset = Cat_VS_Dogs
+
