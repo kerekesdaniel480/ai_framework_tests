@@ -25,7 +25,7 @@ train_datagen = ImageDataGenerator(rescale=1./255,
                              fill_mode='nearest')
 
 val_datagen = ImageDataGenerator(rescale=1./255)
-optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.0005)
+optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.00005)
 early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
 train_generator = train_datagen.flow_from_directory(
