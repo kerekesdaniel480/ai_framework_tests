@@ -13,6 +13,6 @@ Dataset = Cat_VS_Dogs
 -------------------------
 Projekt 0.0 számjegy felismerés
 
-#Dataset = "MINIST_Dataset" 
+Dataset = "MINIST_Dataset" 
 
 Számjegyek felismerése
