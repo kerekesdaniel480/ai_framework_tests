@@ -6,7 +6,8 @@ dependencies = [
     "TensorFlow",
     "pandas",
     "matplotlib",
-    "scipy"
+    "scipy",
+    "certifi"
 ]
 
 Dataset = Cat_VS_Dogs

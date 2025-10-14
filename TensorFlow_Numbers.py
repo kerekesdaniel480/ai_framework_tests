@@ -2,6 +2,11 @@ import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
 
+import ssl
+import certifi
+
+ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+
 # Adatok betöltése
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
