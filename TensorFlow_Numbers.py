@@ -1,16 +1,14 @@
+import ssl
+import certifi
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
-
-import ssl
-import certifi
 
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
 # Adatok betöltése
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
-# Normalizálás (0-255 → 0-1)
 x_train = x_train / 255.0
 x_test = x_test / 255.0
 
@@ -26,15 +24,31 @@ model.compile(
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
-model.fit(x_train, y_train, epochs=5)
+history = model.fit(x_train, y_train, epochs=5, validation_data=(x_test, y_test))
 loss, accuracy = model.evaluate(x_test, y_test)
 print(f"Teszt veszteség: {loss:.4f}, Pontosság: {accuracy:.4f}")
 
-plt.imshow(x_test[0], cmap='gray')
-plt.title("Tesztkép: x_test[0]")
-plt.axis('off')
+# Teszt képek
+plt.figure(figsize=(12, 4))
+for i in range(5):
+    plt.subplot(1, 5, i + 1)
+    plt.imshow(x_test[i], cmap='gray')
+    plt.axis('off')
+    prediction = model.predict(x_test[i:i+1])
+    predicted_label = tf.argmax(prediction[0]).numpy()
+    plt.title(f"Pred: {predicted_label}")
+plt.suptitle("Első 5 tesztkép és predikció")
+plt.tight_layout()
 plt.show()
 
-prediction = model.predict(x_test[0:1])
-predicted_label = tf.argmax(prediction[0]).numpy()
-print(f"Predikált számjegy: {predicted_label}")
+# Tanulási görbék 
+plt.figure(figsize=(10, 4))
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Érték')
+plt.title('Tanulási görbék')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
