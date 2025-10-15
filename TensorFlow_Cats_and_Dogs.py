@@ -17,17 +17,10 @@ lr_scheduler = ReduceLROnPlateau(
 )
 
 
-train_datagen = ImageDataGenerator(rescale=1./255,
-                             rotation_range=20,
-                             width_shift_range=0.2,
-                             height_shift_range=0.2,
-                             shear_range=0.2,
-                             zoom_range=0.2,
-                             horizontal_flip=True,
-                             fill_mode='nearest')
+train_datagen = ImageDataGenerator(rescale=1./255)
 
 val_datagen = ImageDataGenerator(rescale=1./255)
-optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.00005)
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.00005)
 early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
 train_generator = train_datagen.flow_from_directory(
