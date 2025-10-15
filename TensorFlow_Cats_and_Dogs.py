@@ -1,5 +1,7 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
@@ -32,14 +34,14 @@ train_generator = train_datagen.flow_from_directory(
     '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/train',
     target_size=(300, 300),
     batch_size=32,
-    class_mode='binary'
+    class_mode='categorical'
 )
 
 validation_generator = val_datagen.flow_from_directory(
     '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/validation',
     target_size=(300, 300),
     batch_size=32,
-    class_mode='binary'
+    class_mode='categorical'
 )
 
 model = Sequential([
@@ -56,13 +58,25 @@ model = Sequential([
     Flatten(),
     Dense(512, activation='relu'),
     Dropout(0.5),
-    Dense(1, activation='sigmoid')
+    Dense(2, activation='softmax')
 ])
 
 model.compile(optimizer=optimizer,
-              loss='binary_crossentropy',
+              loss='categorical_crossentropy',
               metrics=['accuracy'])
 
+img_path = '/Users/kerekesdaniel/Projects/AI_Test/ai_framework_tests/Dataset_cats/Cat_vs_Dog/train/dog/br-conf-0.15398428-t-1692019699061.jpg'
+img = image.load_img(img_path, target_size=(300, 300))
+img_array = image.img_to_array(img)
+img_array = np.expand_dims(img_array, axis=0)
+img_array /= 255.0
+
+prediction = model.predict(img_array)
+predicted_class = tf.argmax(prediction, axis=1).numpy()
+
+class_names = train_generator.class_indices
+reverse_class_names = {v: k for k, v in class_names.items()}
+print("Predikció:", reverse_class_names[predicted_class[0]])
 
 history = model.fit(
     train_generator,
