@@ -3,7 +3,7 @@ import ssl
 import certifi
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.datasets import mnist
+from tensorflow.keras.datasets import mnist # type: ignore
 import matplotlib.pyplot as plt
 
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
