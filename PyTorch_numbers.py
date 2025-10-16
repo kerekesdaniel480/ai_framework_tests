@@ -1,5 +1,7 @@
+import random
 import ssl
 import certifi
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,20 +12,25 @@ import matplotlib.pyplot as plt
 
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
-# Eszköz kiválasztása (GPU ha elérhető)
+# Eszköz kiválasztása és súlyok inicializálása
 device = torch.device("cpu")
+torch.manual_seed(42)
+random.seed(42)
+np.random.seed(42)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+epochs = 5
 
 # Adatok előkészítése
 transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
+    transforms.ToTensor()
 ])
 
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
 mnist_test = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
@@ -39,40 +46,56 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.dropout(x)
         x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+        return F.softmax(x, dim=1)
 
 model = Net().to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.CrossEntropyLoss()
 
 train_losses = []
-val_accuracies = []
+val_losses = []
+train_accs = []
+val_accs = []
 
-for epoch in range(5):
+for epoch in range(epochs):
     model.train()
-    running_loss = 0.0
-    for data, target in train_loader:
-        data, target = data.to(device), target.to(device)
+    running_loss, correct, total = 0.0, 0, 0
+    for inputs, labels in train_loader:
+        inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
-        output = model(data)
-        loss = criterion(output, target)
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        running_loss += loss.item()
-    train_losses.append(running_loss / len(train_loader))
 
-    # Validáció
+        running_loss += loss.item()
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    train_losses.append(running_loss / len(train_loader))
+    train_accs.append(correct / total)
+
+    # validáció
     model.eval()
-    correct = 0
+    val_loss, correct, total = 0.0, 0, 0
     with torch.no_grad():
-        for data, target in test_loader:
-            data, target = data.to(device), target.to(device)
-            output = model(data)
-            pred = output.argmax(dim=1)
-            correct += pred.eq(target).sum().item()
-    val_accuracy = correct / len(test_loader.dataset)
-    val_accuracies.append(val_accuracy)
-    print(f"Epoch {epoch+1}: Loss = {train_losses[-1]:.4f}, Accuracy = {val_accuracy:.4f}")
+        for inputs, labels in test_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            val_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    val_losses.append(val_loss / len(test_loader))
+    val_accs.append(correct / total)
+
+    print(f"Epoch {epoch+1}: train_loss={train_losses[-1]:.4f}, val_loss={val_losses[-1]:.4f}, val_acc={val_accs[-1]:.4f}")
+
+
+
 
 # Teszt képek
 plt.figure(figsize=(12, 4))
@@ -92,13 +115,12 @@ plt.tight_layout()
 plt.show()
 
 # Tanulási görbék megjelenítése
-plt.figure(figsize=(10, 4))
-plt.plot(train_losses, label='Tanító veszteség')
-plt.plot(val_accuracies, label='Validációs pontosság')
-plt.xlabel('Epoch')
-plt.ylabel('Érték')
-plt.title('Tanulási görbék (PyTorch)')
+plt.plot(train_losses, label='Train Loss')
+plt.plot(val_losses, label='Validation Loss')
 plt.legend()
-plt.grid(True)
-plt.tight_layout()
+plt.show()
+
+plt.plot(train_accs, label='Train Accuracy')
+plt.plot(val_accs, label='Validation Accuracy')
+plt.legend()
 plt.show()

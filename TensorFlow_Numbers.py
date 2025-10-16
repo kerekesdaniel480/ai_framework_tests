@@ -1,10 +1,16 @@
+import random
 import ssl
 import certifi
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
 
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+
+tf.random.set_seed(42) 
+np.random.seed(42)
+random.seed(42)
 
 # Adatok betöltése
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -24,7 +30,7 @@ model.compile(
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
-history = model.fit(x_train, y_train, epochs=5, validation_data=(x_test, y_test))
+history = model.fit(x_train, y_train, epochs=5, batch_size=64, validation_data=(x_test, y_test))
 loss, accuracy = model.evaluate(x_test, y_test)
 print(f"Teszt veszteség: {loss:.4f}, Pontosság: {accuracy:.4f}")
 
@@ -42,13 +48,13 @@ plt.tight_layout()
 plt.show()
 
 # Tanulási görbék 
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(12, 4))
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.legend()
+plt.show()
+
 plt.plot(history.history['accuracy'], label='Train Accuracy')
 plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Érték')
-plt.title('Tanulási görbék')
 plt.legend()
-plt.grid(True)
-plt.tight_layout()
 plt.show()
