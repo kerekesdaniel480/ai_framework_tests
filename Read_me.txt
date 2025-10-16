@@ -17,3 +17,7 @@ Projekt 0.0 számjegy felismerés
 Dataset = "MINIST_Dataset" 
 
 Számjegyek felismerése
+
+CPU and Memory monitoring 
+    psutil and time
+    torch.profiler
