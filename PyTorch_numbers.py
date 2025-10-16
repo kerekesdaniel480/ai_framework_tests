@@ -94,9 +94,6 @@ for epoch in range(epochs):
 
     print(f"Epoch {epoch+1}: train_loss={train_losses[-1]:.4f}, val_loss={val_losses[-1]:.4f}, val_acc={val_accs[-1]:.4f}")
 
-
-
-
 # Teszt képek
 plt.figure(figsize=(12, 4))
 for i in range(5):    
