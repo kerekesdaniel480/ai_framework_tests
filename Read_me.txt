@@ -7,7 +7,8 @@ dependencies = [
     "pandas",
     "matplotlib",
     "scipy",
-    "certifi"
+    "certifi",
+    "psutil"
 ]
 
 Dataset = Cat_VS_Dogs
