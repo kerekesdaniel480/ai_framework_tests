@@ -16,7 +16,6 @@ lr_scheduler = ReduceLROnPlateau(
     min_lr=1e-6
 )
 
-
 train_datagen = ImageDataGenerator(rescale=1./255)
 
 val_datagen = ImageDataGenerator(rescale=1./255)
