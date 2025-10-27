@@ -1,7 +1,7 @@
 import os
 import certifi
 import tensorflow as tf
-from tensorflow.keras import layers, models, callbacks
+from tensorflow.keras import layers, models, callbacks # type: ignore
 import ssl
 import matplotlib.pyplot as plt
 import numpy as np
