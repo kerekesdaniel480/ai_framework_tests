@@ -3,6 +3,8 @@ import certifi
 import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
 import ssl
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
@@ -68,26 +70,72 @@ cbs = [
 ]
 
 # --- edzés ---
-model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS, callbacks=cbs)
-
-# --- opcionális finomhangolás ---
-base_model.trainable = True
-fine_tune_at = 100
-for layer in base_model.layers[:fine_tune_at]:
-    layer.trainable = False
-
-model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),
-              loss="binary_crossentropy",
-              metrics=["accuracy", tf.keras.metrics.AUC(name="auc")])
-
-model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS//2, callbacks=cbs)
+history = model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS, callbacks=cbs)
 
 # --- értékelés a teszten ---
 test_loss, test_acc, test_auc = model.evaluate(test_ds)
 print("Test:", test_loss, test_acc, test_auc)
 
-# --- minta predikció (képek sorrendje megegyezik a test_ds fájlrendelésével) ---
-import numpy as np
-for images, labels in test_ds.take(1):
-    preds = model.predict(images)
-    print("preds (0..1):", np.round(preds.flatten()[:10], 3))
+# 1) Accuracy görbe (train vs val)
+def plot_accuracy(history):
+    acc = history.history.get("accuracy") or history.history.get("acc")
+    val_acc = history.history.get("val_accuracy") or history.history.get("val_acc")
+    if acc is None or val_acc is None:
+        print("Nincs accuracy adat a history-ban.")
+        return
+    epochs = range(1, len(acc) + 1)
+    plt.figure(figsize=(7,4))
+    plt.plot(epochs, acc, "b-", label="train accuracy")
+    plt.plot(epochs, val_acc, "r--", label="val accuracy")
+    plt.title("Training vs Validation Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+plot_accuracy(history)
+
+# 2) 10 minta kép predikcióval
+def show_sample_predictions(model, test_ds, n=10, class_names=None):
+    # class_names: ha nincs megadva, próbáljuk meg lekérni a dataset-ből
+    if class_names is None:
+        try:
+            class_names = test_ds.class_names
+        except Exception:
+            class_names = ["cat", "dog"]  # alapértelmezett
+    # gyűjtsünk össze képeket és file-okat
+    imgs = []
+    trues = []
+    preds = []
+    for images, labels in test_ds:    # shuffle=False biztosítja, hogy sorrend következetes
+        # iterálunk batchenként, kigyűjtjük amennyi kell
+        p = model.predict(images, verbose=0).flatten()
+        for img, lab, prob in zip(images.numpy(), labels.numpy(), p):
+            imgs.append(img.astype(np.uint8))
+            trues.append(int(lab))
+            preds.append(float(prob))
+            if len(imgs) >= n:
+                break
+        if len(imgs) >= n:
+            break
+
+    # kirajzolás
+    cols = 5
+    rows = (n + cols - 1) // cols
+    plt.figure(figsize=(cols*3, rows*3))
+    for i in range(len(imgs)):
+        plt.subplot(rows, cols, i+1)
+        plt.imshow(imgs[i])
+        plt.axis("off")
+        prob = preds[i]
+        pred_label = class_names[1] if prob > 0.5 else class_names[0]
+        true_label = class_names[trues[i]]
+        title = f"P: {pred_label} ({prob:.2f})\nT: {true_label}"
+        color = "green" if pred_label == true_label else "red"
+        plt.title(title, color=color, fontsize=9)
+    plt.tight_layout()
+    plt.show()
+
+show_sample_predictions(model, test_ds, n=10)
