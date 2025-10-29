@@ -38,7 +38,7 @@ def set_seed(seed):
 
 set_seed(SEED)
 
-# --- augmentációk (TF-hez hasonló) ---
+# --- augmentációk ---
 # TF RandomRotation(0.06) ~ ±0.06*360° = ±21.6°
 transform_train = transforms.Compose([
     transforms.Resize(IMG_SIZE),
@@ -64,25 +64,23 @@ train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, num_wor
 val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=0, pin_memory=False)
 test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=0, pin_memory=False)
 
-class_names = train_ds.classes  # expected ["cat","dog"] 
+class_names = train_ds.classes
 
 # --- modell: MobileNetV2 ---
 pt_base = models.mobilenet_v2(pretrained=True)
-# Remove classifier, keep features + pooling
-# torchvision's mobilenet_v2 has .features and .classifier; features output channels 1280
 class MobileNetV2Binary(nn.Module):
     def __init__(self, base):
         super().__init__()
         self.base = base.features  # feature extractor
         self.pool = nn.AdaptiveAvgPool2d((1,1))
         self.dropout = nn.Dropout(0.3)
-        self.fc = nn.Linear(1280, 1)  # binary
+        self.fc = nn.Linear(1280, 1)  
     def forward(self, x):
         x = self.base(x)
         x = self.pool(x).reshape(x.size(0), -1)
         x = self.dropout(x)
         x = self.fc(x)
-        return x  # raw logits
+        return x  
 
 model = MobileNetV2Binary(pt_base).to(DEVICE)
 
@@ -93,9 +91,7 @@ def set_base_trainable(model, trainable: bool, fine_tune_at: int = None):
     for param in model.base.parameters():
         param.requires_grad = trainable
     if fine_tune_at is not None:
-        # freeze first fine_tune_at layers in model.base (by children order)
         children = list(model.base.children())
-        # iterate modules and count params layers; approximate by module index
         cum = 0
         for i, ch in enumerate(children):
             if i < fine_tune_at:
